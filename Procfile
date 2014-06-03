@@ -1,1 +1,1 @@
-web: gunicorn journal.py
+web: gunicorn journal:app
