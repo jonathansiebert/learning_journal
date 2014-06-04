@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block body %}
+  <h2>Entries</h2>
+  {% for entry in entries %}
+  <article class="entry" id="entry={{entry.id}}">
