@@ -4,7 +4,7 @@ import os
 import psycopg2
 from contextlib import closing
 from flask import Flask
-from flash import g
+from flask import g
 
 DB_SCHEMA = """
 DROP TABLE IF EXISTS entries;
