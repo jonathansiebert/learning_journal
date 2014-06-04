@@ -5,6 +5,7 @@ import psycopg2
 from contextlib import closing
 from flask import Flask
 from flask import g
+from flask import render_template
 import datetime
 
 DB_SCHEMA = """
@@ -78,8 +79,9 @@ def get_all_entries():
     return [dict(zip(keys, row)) for row in cur.fetchall()]
 
 @app.route('/')
-def hello():
-    return u'Hello world!'
+def show_entries():
+    entries = get_all_entries()
+    return render_template('list_entries.html', entries=entries)
 
 if __name__ == '__main__':
     app.run(debug=True)
