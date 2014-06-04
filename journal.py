@@ -17,7 +17,7 @@ CREATE TABLE entries (
 
 app = Flask(__name__)
 
-app.config['DATABASE'] = os.environ.get('DATABASE_UR')
+app.config['DATABASE'] = os.environ.get('DATABASE_URL')
 
 def connect_db():
     """Return a connection to the configured database"""
