@@ -32,3 +32,26 @@ def db(test_app, request):
         clear_db()
 
     request.addfinalizer(cleanup)
+
+@pytest.yield_fixture(scope='function')
+def req_context(db):
+    """run tests within a test request context so that 'g' is present"""
+    with app.test_request_context('/'):
+        yield
+        con = get_database_connection()
+        con.rollback()
+
+def run_independent_query(query, params=[]):
+    con = get_database_connection()
+    cur = con.cursor()
+    cur.execute(query, params)
+    return cur.fetchall()
+
+def test_write_entry(req_context):
+    from journal import test_write_entry
+    expected = ("My Title", "My Text")
+    write_entry(*expected)
+    rows = run_independent_query("SELECT * FROM entries")
+    assert len(rows) == 1
+    for val in expected:
+        assert val in rows[0]
