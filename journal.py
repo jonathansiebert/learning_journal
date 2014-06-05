@@ -28,11 +28,13 @@ SELECT id, title, text, created FROM entries ORDER BY created DESC
 app = Flask(__name__)
 
 app.config['DATABASE'] = os.environ.get('DATABASE_URL',
-    "dbname=learning_journal")
+                                        "dbname=learning_journal")
+
 
 def connect_db():
     """Return a connection to the configured database"""
     return psycopg2.connect(app.config['DATABASE'])
+
 
 def init_db():
     """Initialize the database using DB_SCHEMA
@@ -43,11 +45,13 @@ def init_db():
         db.cursor().execute(DB_SCHEMA)
         db.commit()
 
+
 def get_database_connection():
     db = getattr(g, 'db', None)
     if db is None:
         g.db = db = connect_db()
     return db
+
 
 @app.teardown_request
 def teardown_request(exception):
@@ -62,6 +66,7 @@ def teardown_request(exception):
             db.commit()
         db.close()
 
+
 def write_entry(title, text):
     if not title or not text:
         raise ValueError("Title and text required for writing an entry")
@@ -70,6 +75,7 @@ def write_entry(title, text):
     now = datetime.datetime.utcnow()
     cur.execute(DB_ENTRY_INSERT, [title, text, now])
 
+
 def get_all_entries():
     """Return a list all entries as dicts"""
     con = get_database_connection()
@@ -77,6 +83,7 @@ def get_all_entries():
     cur.execute(DB_ENTRIES_LIST)
     keys = ['id', 'title', 'text', 'created']
     return [dict(zip(keys, row)) for row in cur.fetchall()]
+
 
 @app.route('/')
 def show_entries():
