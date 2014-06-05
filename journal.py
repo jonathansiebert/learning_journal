@@ -6,6 +6,12 @@ from contextlib import closing
 from flask import Flask
 from flask import g
 from flask import render_template
+from flask import abort
+from flask import request
+from flask import url_for
+from flask import redirect
+from flask import session
+from passlib.hash import pbkdf2_sha256
 import datetime
 
 DB_SCHEMA = """
@@ -29,6 +35,15 @@ app = Flask(__name__)
 
 app.config['DATABASE'] = os.environ.get('DATABASE_URL',
     "dbname=learning_journal")
+
+app.config['ADMIN_USERNAME'] = os.environ.get('ADMIN_USERNAME', 'admin')
+
+app.config['ADMIN_PASSWORD'] = os.environ.get('ADMIN_PASWWORD',
+    pbkdf2_sha256.encrypt('admin'))
+
+app.config['SECRET_KEY'] = os.environ.get(
+    'FLASK_SECRET_KEY', 'sooperseekritvaluenooneshouldknow'
+)
 
 def connect_db():
     """Return a connection to the configured database"""
@@ -82,6 +97,21 @@ def get_all_entries():
 def show_entries():
     entries = get_all_entries()
     return render_template('list_entries.html', entries=entries)
+
+@app.route('/add', methods = ['POST'])
+def add_entry():
+    try:
+        write_entry(request.form['title'], request.form['text'])
+    except psycopg2.Error:
+        abort(500)
+    return redirect(url_for('show_entries'))
+
+def do_login(username='', passwd=''):
+    if username != app.config['ADMIN_USERNAME']:
+        raise ValueError
+    if not pbkdf2_sha256.verify(passwd, app.config['ADMIN_PASSWORD']):
+        raise ValueError
+    session['logged_in'] = True
 
 if __name__ == '__main__':
     app.run(debug=True)
