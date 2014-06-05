@@ -40,11 +40,12 @@ app.config['DATABASE'] = os.environ.get('DATABASE_URL',
 app.config['ADMIN_USERNAME'] = os.environ.get('ADMIN_USERNAME', 'admin')
 
 app.config['ADMIN_PASSWORD'] = os.environ.get('ADMIN_PASWWORD',
-    pbkdf2_sha256.encrypt('admin'))
+                                              pbkdf2_sha256.encrypt('admin'))
 
 app.config['SECRET_KEY'] = os.environ.get(
     'FLASK_SECRET_KEY', 'sooperseekritvaluenooneshouldknow'
 )
+
 
 def connect_db():
     """Return a connection to the configured database"""
@@ -105,7 +106,8 @@ def show_entries():
     entries = get_all_entries()
     return render_template('list_entries.html', entries=entries)
 
-@app.route('/add', methods = ['POST'])
+
+@app.route('/add', methods=['POST'])
 def add_entry():
     try:
         write_entry(request.form['title'], request.form['text'])
@@ -113,12 +115,34 @@ def add_entry():
         abort(500)
     return redirect(url_for('show_entries'))
 
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        try:
+            do_login(request.form['username'].encode('utf-8'),
+                     request.form['password'].encode('utf-8'))
+        except ValueError:
+            error = "Login Failed"
+        else:
+            return redirect(url_for('show_entries'))
+    return render_template('login.html', error=error)
+
+
 def do_login(username='', passwd=''):
     if username != app.config['ADMIN_USERNAME']:
         raise ValueError
     if not pbkdf2_sha256.verify(passwd, app.config['ADMIN_PASSWORD']):
         raise ValueError
     session['logged_in'] = True
+
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('show_entries'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
