@@ -115,6 +115,13 @@ def add_entry():
         abort(500)
     return redirect(url_for('show_entries'))
 
+@app.route('/edit', methods=['POST'])
+def edit_entry():
+    try:
+        write_entry(request.form['title'], request.form['text'])
+    except psucopg2.Error:
+        abort(500)
+    return redirect(url_for('show_entries'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
