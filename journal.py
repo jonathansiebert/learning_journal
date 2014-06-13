@@ -31,6 +31,12 @@ DB_ENTRIES_LIST = """
 SELECT id, title, text, created FROM entries ORDER BY created DESC
 """
 
+DB_ENTRIES_UPDATE = """
+UPDATE ONLY entries AS en
+SET (title, text, created) = (%s, %s, %s)
+WHERE en.id = %i
+"""
+
 app = Flask(__name__)
 
 app.config['DATABASE'] = os.environ.get('DATABASE_URL',
@@ -91,6 +97,9 @@ def write_entry(title, text):
     now = datetime.datetime.utcnow()
     cur.execute(DB_ENTRY_INSERT, [title, text, now])
 
+def get_entry():
+    pass
+
 
 def get_all_entries():
     """Return a list all entries as dicts"""
@@ -115,13 +124,17 @@ def add_entry():
         abort(500)
     return redirect(url_for('show_entries'))
 
-@app.route('/edit', methods=['POST'])
-def edit_entry():
-    try:
-        write_entry(request.form['title'], request.form['text'])
-    except psucopg2.Error:
-        abort(500)
-    return redirect(url_for('show_entries'))
+@app.route('/edit/<entry_id>', methods=['GET', 'POST'])
+def edit_entry(entry_id = None):
+    error = None
+    if request.method == 'POST':
+        try:
+            pass
+        except ValueError:
+            error = "Login Failed"
+        else:
+            return redirect(url_for('show_entries'))
+    return render_template('edit.html', entry_id=entry_id)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
