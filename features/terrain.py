@@ -14,21 +14,39 @@ from journal import init_db
 TEST_DSN = 'dbname=test_learning_journal user=' + os.environ.get('USER')
 
 
+world.entry_data = {
+    u'title': u'Hello',
+    u'text': u'This is a post',
+}
+
+
 @before.all
 def test_app():
     """configure our app for use in testing"""
     app.config['DATABASE'] = TEST_DSN
     app.config['TESTING'] = True
-
-    # initialize the entries table and drop it when finished
     init_db()
 
-    def cleanup():
-        with closing(connect_db()) as db:
-            db.cursor().execute("DROP TABLE entries")
-            db.commit()
+    from journal import write_entry
+    with app.test_request_context('/'):
+        app.test_client().post(
+            '/add', data=entry_data, follow_redirects=True)
+        # manually commit transaction here to avoid rollback
+        # due to handled Exception
+        get_database_connection().commit()
 
-    request.addfinalizer(cleanup)
+
+@after.all
+def teardown():
+    with app.test_request_context('/'):
+        con = get_database_connection()
+        cur = con.cursor()
+        cur.execute("DELETE FROM entries")
+        # and here as well
+        con.commit()
+    with closing(connect_db()) as db:
+        db.cursor().execute("DROP TABLE entries")
+        db.commit()
 
 
 # MIGHT NEED FIXING ####################################################
@@ -49,21 +67,10 @@ def run_independent_query(query, params=[]):
 
 
 def with_entry():
-    from journal import write_entry
-    expected = (u'Test Title', u'Test Text')
-    with app.test_request_context('/'):
-        write_entry(*expected)
-        # manually commit transaction here to avoid rollback
-        # due to handled Exception
-        get_database_connection().commit()
+    
 
     def cleanup():
-        with app.test_request_context('/'):
-            con = get_database_connection()
-            cur = con.cursor()
-            cur.execute("DELETE FROM entries")
-            # and here as well
-            con.commit()
+        
     request.addfinalizer(cleanup)
     return expected
 
