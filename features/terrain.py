@@ -27,17 +27,16 @@ def test_app():
     app.config['TESTING'] = True
     init_db()
 
-    from journal import write_entry
     with app.test_request_context('/'):
         app.test_client().post(
-            '/add', data=entry_data, follow_redirects=True)
+            '/add', data=world.entry_data, follow_redirects=True)
         # manually commit transaction here to avoid rollback
         # due to handled Exception
         get_database_connection().commit()
 
 
 @after.all
-def teardown():
+def teardown(total):
     with app.test_request_context('/'):
         con = get_database_connection()
         cur = con.cursor()
@@ -49,16 +48,16 @@ def teardown():
         db.commit()
 
 
-# MIGHT NEED FIXING ####################################################
-@before.each_scenario
-def req_context(scenario):
-    """run tests within a test request context so that 'g' is present"""
+@world.absorb
+def req_context():
+    """has to be called explicitly in lettuce"""
     with app.test_request_context('/'):
         yield
         con = get_database_connection()
         con.rollback()
 
 
+@world.absorb
 def run_independent_query(query, params=[]):
     con = get_database_connection()
     cur = con.cursor()
@@ -66,18 +65,7 @@ def run_independent_query(query, params=[]):
     return cur.fetchall()
 
 
-def with_entry():
-    
-
-    def cleanup():
-        
-    request.addfinalizer(cleanup)
-    return expected
-
-
-SUBMIT_BTN = '<input type="submit" value="Share" name="Share"/>'
-
-
+@world.absorb
 def login_helper(username, password):
     login_data = {
         'username': username, 'password': password
