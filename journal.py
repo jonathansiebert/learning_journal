@@ -103,7 +103,7 @@ def write_entry(title, text):
 
 
 def get_entry(entry_id):
-    return get_all_entries()[int(entry_id)-1]
+    return get_all_entries()[-int(entry_id)]
 
 
 def get_all_entries():
