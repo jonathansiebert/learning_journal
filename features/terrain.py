@@ -49,15 +49,6 @@ def teardown(total):
 
 
 @world.absorb
-def req_context():
-    """has to be called explicitly in lettuce"""
-    with app.test_request_context('/'):
-        yield
-        con = get_database_connection()
-        con.rollback()
-
-
-@world.absorb
 def run_independent_query(query, params=[]):
     con = get_database_connection()
     cur = con.cursor()
