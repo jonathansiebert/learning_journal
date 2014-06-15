@@ -31,6 +31,10 @@ DB_ENTRIES_LIST = """
 SELECT id, title, text, created FROM entries ORDER BY created DESC
 """
 
+DB_ENTRY_GET = """
+SELECT id, title, text, created FROM entries WHERE ID = %s
+"""
+
 DB_ENTRIES_UPDATE = """
 UPDATE ONLY entries AS en
 SET (title, text, created) = (%s, %s, %s)
@@ -97,8 +101,9 @@ def write_entry(title, text):
     now = datetime.datetime.utcnow()
     cur.execute(DB_ENTRY_INSERT, [title, text, now])
 
-def get_entry():
-    pass
+
+def get_entry(entry_id):
+    return get_all_entries()[int(entry_id)-1]
 
 
 def get_all_entries():
@@ -124,17 +129,21 @@ def add_entry():
         abort(500)
     return redirect(url_for('show_entries'))
 
+
 @app.route('/edit/<entry_id>', methods=['GET', 'POST'])
 def edit_entry(entry_id = None):
+    entry = get_entry(entry_id)
     error = None
     if request.method == 'POST':
         try:
-            pass
+            raise ValueError
         except ValueError:
             error = "Login Failed"
         else:
             return redirect(url_for('show_entries'))
-    return render_template('edit.html', entry_id=entry_id)
+    print "\n\n"+str(request)+"\n\n"
+    return render_template('edit.html', entry=entry)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -166,3 +175,6 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
