@@ -27,12 +27,9 @@ CREATE TABLE entries (
 DB_ENTRY_INSERT = """
 INSERT INTO entries (title, text, created) VALUES (%s, %s, %s)
 """
+
 DB_ENTRIES_LIST = """
 SELECT id, title, text, created FROM entries ORDER BY created DESC
-"""
-
-DB_ENTRY_GET = """
-SELECT id, title, text, created FROM entries WHERE ID = %s
 """
 
 DB_ENTRY_UPDATE = """
@@ -110,7 +107,15 @@ def update_entry(title, text, entry_id):
     cur.execute(DB_ENTRY_UPDATE, [title, text, now, entry_id])
 
 def get_entry(entry_id = 1):
-    return get_all_entries()[-int(entry_id)]
+    DB_GET_ENTRY = """
+SELECT id, title, text, created FROM entries
+WHERE id = {}
+    """.format((entry_id))
+    con = get_database_connection()
+    cur = con.cursor()
+    cur.execute(DB_GET_ENTRY)
+    e = cur.fetchone()
+    return {'id': e[0], 'title':e[1], 'text':e[2], 'created':e[3]}
 
 
 def get_all_entries():
@@ -147,7 +152,6 @@ def edit_entry(entry_id = None):
             update_entry(request.form['title'], request.form['text'], int(entry_id))
         except psycopg2.Error:
             abort(500)
-
     return render_template('edit.html', entry = entry)
 
 
