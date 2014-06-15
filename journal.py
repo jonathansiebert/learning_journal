@@ -35,10 +35,10 @@ DB_ENTRY_GET = """
 SELECT id, title, text, created FROM entries WHERE ID = %s
 """
 
-DB_ENTRIES_UPDATE = """
+DB_ENTRY_UPDATE = """
 UPDATE ONLY entries AS en
 SET (title, text, created) = (%s, %s, %s)
-WHERE en.id = %i
+WHERE en.id = %s
 """
 
 app = Flask(__name__)
@@ -101,8 +101,15 @@ def write_entry(title, text):
     now = datetime.datetime.utcnow()
     cur.execute(DB_ENTRY_INSERT, [title, text, now])
 
+def update_entry(title, text, entry_id):
+    if not title or not text:
+        raise ValueError("Title and text required for writing an entry")
+    con = get_database_connection()
+    cur = con.cursor()
+    now = datetime.datetime.utcnow()
+    cur.execute(DB_ENTRY_UPDATE, [title, text, now, entry_id])
 
-def get_entry(entry_id):
+def get_entry(entry_id = 1):
     return get_all_entries()[-int(entry_id)]
 
 
@@ -136,13 +143,12 @@ def edit_entry(entry_id = None):
     error = None
     if request.method == 'POST':
         try:
-            raise ValueError
-        except ValueError:
-            error = "Login Failed"
-        else:
-            return redirect(url_for('show_entries'))
-    print "\n\n"+str(request)+"\n\n"
-    return render_template('edit.html', entry=entry)
+            print "\n\n"+str(request)+"\nHELLO\n\n"
+            update_entry(request.form['title'], request.form['text'], int(entry_id))
+        except psycopg2.Error:
+            abort(500)
+
+    return render_template('edit.html', entry = entry)
 
 
 @app.route('/login', methods=['GET', 'POST'])
