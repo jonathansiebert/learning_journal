@@ -3,7 +3,7 @@ from contextlib import closing
 import pytest
 import os
 
-#from flask import session
+from flask import session
 
 from journal import app
 from journal import connect_db
