@@ -13,6 +13,7 @@ from flask import redirect
 from flask import session
 from passlib.hash import pbkdf2_sha256
 import datetime
+import markdown
 
 DB_SCHEMA = """
 DROP TABLE IF EXISTS entries;
@@ -104,6 +105,8 @@ def get_all_entries():
 @app.route('/')
 def show_entries():
     entries = get_all_entries()
+    for entry in entries:
+        entry['text'] = markdown.markdown(entry['text'])
     return render_template('list_entries.html', entries=entries)
 
 

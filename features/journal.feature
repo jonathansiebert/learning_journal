@@ -15,9 +15,17 @@ Feature: Editing entries
     Scenario: List view edit buttons (Logged in)
         Given I am logged in
         When I visit the URI '/'
-        Then the response should contain 'Edit'
+        Then the response should contain '<button type="submit"/>Edit'
 
     Scenario: Edit entry (Logged in)
         Given I am logged in
         When I visit the URI '/edit/1'
-        Then the response should contain 'value="This is a post"'
+        Then the response should contain 'value="#This is a post"'
+
+    Scenario: View entry with markdown
+        When I visit the URI '/'
+        Then the response should contain '<h1>This is a post'
+
+    Scenario: View entry with code block formatting
+        When I visit the URI '/'
+        Then the response should contain '<code>with some code'

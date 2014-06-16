@@ -16,7 +16,8 @@ TEST_DSN = 'dbname=test_learning_journal user=' + os.environ.get('USER')
 
 world.entry_data = {
     u'title': u'Hello',
-    u'text': u'This is a lettuce post',
+    u'text': u'''#This is a post
+    with some code''',
 }
 
 
