@@ -28,8 +28,15 @@ CREATE TABLE entries (
 DB_ENTRY_INSERT = """
 INSERT INTO entries (title, text, created) VALUES (%s, %s, %s)
 """
+
 DB_ENTRIES_LIST = """
 SELECT id, title, text, created FROM entries ORDER BY created DESC
+"""
+
+DB_ENTRY_UPDATE = """
+UPDATE ONLY entries AS en
+SET (title, text, created) = (%s, %s, %s)
+WHERE en.id = %s
 """
 
 app = Flask(__name__)
@@ -92,6 +99,25 @@ def write_entry(title, text):
     now = datetime.datetime.utcnow()
     cur.execute(DB_ENTRY_INSERT, [title, text, now])
 
+def update_entry(title, text, entry_id):
+    if not title or not text:
+        raise ValueError("Title and text required for writing an entry")
+    con = get_database_connection()
+    cur = con.cursor()
+    now = datetime.datetime.utcnow()
+    cur.execute(DB_ENTRY_UPDATE, [title, text, now, entry_id])
+
+def get_entry(entry_id = 1):
+    DB_GET_ENTRY = """
+SELECT id, title, text, created FROM entries
+WHERE id = {}
+    """.format((entry_id))
+    con = get_database_connection()
+    cur = con.cursor()
+    cur.execute(DB_GET_ENTRY)
+    e = cur.fetchone()
+    return {'id': e[0], 'title':e[1], 'text':e[2], 'created':e[3]}
+
 
 def get_all_entries():
     """Return a list all entries as dicts"""
@@ -117,6 +143,19 @@ def add_entry():
     except psycopg2.Error:
         abort(500)
     return redirect(url_for('show_entries'))
+
+
+@app.route('/edit/<entry_id>', methods=['GET', 'POST'])
+def edit_entry(entry_id = None):
+    entry = get_entry(entry_id)
+    error = None
+    if request.method == 'POST':
+        try:
+            print "\n\n"+str(request)+"\nHELLO\n\n"
+            update_entry(request.form['title'], request.form['text'], int(entry_id))
+        except psycopg2.Error:
+            abort(500)
+    return render_template('edit.html', entry = entry)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -149,3 +188,6 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+

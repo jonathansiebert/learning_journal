@@ -62,7 +62,6 @@ def test_write_entry(req_context):
     for val in expected:
         assert val in rows[0]
 
-
 def test_get_all_entries_empty(req_context):
     from journal import get_all_entries
     entries = get_all_entries()
@@ -122,6 +121,18 @@ def test_add_entries(db):
     }
     actual = app.test_client().post(
         '/add', data=entry_data, follow_redirects=True
+        ).data
+    assert 'No entries here so far' not in actual
+    for expected in entry_data.values():
+        assert expected in actual
+
+def test_edit_entries(db):
+    entry_data = {
+        u'title': u'Hello',
+        u'text': u'This is a post',
+    }
+    actual = app.test_client().post(
+        '/edit', data=entry_data, follow_redirects=True
         ).data
     assert 'No entries here so far' not in actual
     for expected in entry_data.values():

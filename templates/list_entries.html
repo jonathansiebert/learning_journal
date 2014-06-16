@@ -17,11 +17,14 @@
   </form>
   </aside>
   {% endif %}
-  <h2>Entries</h2>
+  <h2 style="text-align:center">Entries</h2>
   {% for entry in entries %}
   <article class="entry" id="entry={{entry.id}}">
     <h3>{{ entry.title }}</h3>
-    <p class="dateline">{{ entry.created.strftime('%b, %d, %Y') }}
+          <form id="edit_button" action="{{ url_for('edit_entry', entry_id=entry.id) }}" method="GET" class="edit_entry">
+        <button type="submit"/>Edit</button>
+      </form>
+    <p class="dateline">{{ entry.created.strftime('%b, %d, %Y') }}</p>
     <div class="entry_body">
       {{ entry.text|safe }}
     </div>
