@@ -28,4 +28,4 @@ Feature: Editing entries
 
     Scenario: View entry with code block formatting
         When I visit the URI '/'
-        Then the response should contain '<code>with some code'
+        Then the response should contain '<div class="codehilite">'

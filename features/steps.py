@@ -4,6 +4,7 @@ from lettuce import *
 import journal
 
 
+# based on an idea by Bruce Eckel
 def step_with_context(a_string, *args, **kwargs):
     def wrap(func):
         @step(a_string)

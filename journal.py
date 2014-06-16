@@ -99,6 +99,7 @@ def write_entry(title, text):
     now = datetime.datetime.utcnow()
     cur.execute(DB_ENTRY_INSERT, [title, text, now])
 
+
 def update_entry(title, text, entry_id):
     if not title or not text:
         raise ValueError("Title and text required for writing an entry")
@@ -107,7 +108,8 @@ def update_entry(title, text, entry_id):
     now = datetime.datetime.utcnow()
     cur.execute(DB_ENTRY_UPDATE, [title, text, now, entry_id])
 
-def get_entry(entry_id = 1):
+
+def get_entry(entry_id=1):
     DB_GET_ENTRY = """
 SELECT id, title, text, created FROM entries
 WHERE id = {}
@@ -116,7 +118,7 @@ WHERE id = {}
     cur = con.cursor()
     cur.execute(DB_GET_ENTRY)
     e = cur.fetchone()
-    return {'id': e[0], 'title':e[1], 'text':e[2], 'created':e[3]}
+    return {'id': e[0], 'title': e[1], 'text': e[2], 'created': e[3]}
 
 
 def get_all_entries():
@@ -132,7 +134,8 @@ def get_all_entries():
 def show_entries():
     entries = get_all_entries()
     for entry in entries:
-        entry['text'] = markdown.markdown(entry['text'])
+        entry['text'] = markdown.markdown(entry['text'],
+                                          extensions=['codehilite'])
     return render_template('list_entries.html', entries=entries)
 
 
@@ -146,16 +149,16 @@ def add_entry():
 
 
 @app.route('/edit/<entry_id>', methods=['GET', 'POST'])
-def edit_entry(entry_id = None):
+def edit_entry(entry_id=None):
     entry = get_entry(entry_id)
-    error = None
     if request.method == 'POST':
         try:
             print "\n\n"+str(request)+"\nHELLO\n\n"
-            update_entry(request.form['title'], request.form['text'], int(entry_id))
+            update_entry(request.form['title'], request.form['text'],
+                         int(entry_id))
         except psycopg2.Error:
             abort(500)
-    return render_template('edit.html', entry = entry)
+    return render_template('edit.html', entry=entry)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -188,6 +191,3 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
