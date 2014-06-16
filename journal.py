@@ -13,6 +13,7 @@ from flask import redirect
 from flask import session
 from passlib.hash import pbkdf2_sha256
 import datetime
+import markdown
 
 DB_SCHEMA = """
 DROP TABLE IF EXISTS entries;
@@ -27,8 +28,15 @@ CREATE TABLE entries (
 DB_ENTRY_INSERT = """
 INSERT INTO entries (title, text, created) VALUES (%s, %s, %s)
 """
+
 DB_ENTRIES_LIST = """
 SELECT id, title, text, created FROM entries ORDER BY created DESC
+"""
+
+DB_ENTRY_UPDATE = """
+UPDATE ONLY entries AS en
+SET (title, text, created) = (%s, %s, %s)
+WHERE en.id = %s
 """
 
 app = Flask(__name__)
@@ -64,7 +72,7 @@ def init_db():
 
 def get_database_connection():
     db = getattr(g, 'db', None)
-    if db is None:
+    if db is None or db.closed != 0:
         g.db = db = connect_db()
     return db
 
@@ -92,6 +100,29 @@ def write_entry(title, text):
     cur.execute(DB_ENTRY_INSERT, [title, text, now])
 
 
+def update_entry(title, text, entry_id):
+    if not title or not text:
+        raise ValueError("Title and text required for writing an entry")
+    con = get_database_connection()
+    cur = con.cursor()
+    now = datetime.datetime.utcnow()
+    cur.execute(DB_ENTRY_UPDATE, [title, text, now, entry_id])
+
+
+def get_entry(entry_id=1):
+    DB_GET_ENTRY = """
+SELECT id, title, text, created FROM entries
+WHERE id = {}
+    """.format((entry_id))
+    con = get_database_connection()
+    cur = con.cursor()
+    cur.execute(DB_GET_ENTRY)
+    e = cur.fetchone()
+    assert e
+    return {'id': e[0], 'title': e[1].strip(),
+            'text': e[2].strip(), 'created': e[3]}
+
+
 def get_all_entries():
     """Return a list all entries as dicts"""
     con = get_database_connection()
@@ -104,6 +135,9 @@ def get_all_entries():
 @app.route('/')
 def show_entries():
     entries = get_all_entries()
+    for entry in entries:
+        entry['text'] = markdown.markdown(entry['text'],
+                                          extensions=['codehilite'])
     return render_template('list_entries.html', entries=entries)
 
 
@@ -114,6 +148,23 @@ def add_entry():
     except psycopg2.Error:
         abort(500)
     return redirect(url_for('show_entries'))
+
+
+@app.route('/edit/<entry_id>', methods=['GET', 'POST'])
+def edit_entry(entry_id=None):
+    if not entry_id or 'logged_in' not in session or \
+            session['logged_in'] is False:
+        return redirect(url_for('show_entries'))
+    entry = get_entry(entry_id)
+    if request.method == 'POST':
+        try:
+            update_entry(request.form['title'], request.form['text'],
+                         int(entry_id))
+        except psycopg2.Error:
+            abort(500)
+        else:
+            return redirect(url_for('show_entries'))
+    return render_template('edit.html', entry=entry)
 
 
 @app.route('/login', methods=['GET', 'POST'])
