@@ -19,6 +19,7 @@ def step_with_context(a_string, *args, **kwargs):
 
 @step_with_context("I am not logged in")
 def i_am_not_logged_in(step):
+    world.logged_in = False
     journal.logout()
 
 

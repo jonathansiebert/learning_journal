@@ -118,7 +118,9 @@ WHERE id = {}
     cur = con.cursor()
     cur.execute(DB_GET_ENTRY)
     e = cur.fetchone()
-    return {'id': e[0], 'title': e[1], 'text': e[2], 'created': e[3]}
+    assert e
+    return {'id': e[0], 'title': e[1].strip(),
+            'text': e[2].strip(), 'created': e[3]}
 
 
 def get_all_entries():
@@ -150,14 +152,18 @@ def add_entry():
 
 @app.route('/edit/<entry_id>', methods=['GET', 'POST'])
 def edit_entry(entry_id=None):
+    if not entry_id or 'logged_in' not in session or \
+            session['logged_in'] is False:
+        return redirect(url_for('show_entries'))
     entry = get_entry(entry_id)
     if request.method == 'POST':
         try:
-            print "\n\n"+str(request)+"\nHELLO\n\n"
             update_entry(request.form['title'], request.form['text'],
                          int(entry_id))
         except psycopg2.Error:
             abort(500)
+        else:
+            return redirect(url_for('show_entries'))
     return render_template('edit.html', entry=entry)
 
 

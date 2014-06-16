@@ -126,15 +126,17 @@ def test_add_entries(db):
     for expected in entry_data.values():
         assert expected in actual
 
-def test_edit_entries(db):
+
+def test_edit_entries(req_context):
     entry_data = {
-        u'title': u'Hello',
-        u'text': u'This is a post',
+        u'title': u'Hello2',
+        u'text': u'This is a post2',
     }
     actual = app.test_client().post(
-        '/edit', data=entry_data, follow_redirects=True
+        '/edit/4', data=entry_data, follow_redirects=True
         ).data
     assert 'No entries here so far' not in actual
+    print actual
     for expected in entry_data.values():
         assert expected in actual
 

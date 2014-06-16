@@ -51,14 +51,6 @@ def teardown(total):
 
 
 @world.absorb
-def run_independent_query(query, params=[]):
-    con = get_database_connection()
-    cur = con.cursor()
-    cur.execute(query, params)
-    return cur.fetchall()
-
-
-@world.absorb
 def login_helper(username, password):
     login_data = {
         'username': username, 'password': password
