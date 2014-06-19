@@ -151,7 +151,7 @@ def add_entry():
     return redirect(url_for('show_entries'))
 
 
-@app.route('/edit/<entry_id>', methods=['GET', 'POST'])
+@app.route('/_edit', methods=['GET', 'POST'])
 def edit_entry(entry_id=None):
     if not entry_id or 'logged_in' not in session or \
             session['logged_in'] is False:
@@ -165,8 +165,7 @@ def edit_entry(entry_id=None):
             abort(500)
         else:
             return redirect(url_for('show_entries'))
-    return jsonify(request.form['title'], request.form['text'],
-                   int(entry_id))
+    return jsonify(**entry)
 
 
 @app.route('/login', methods=['GET', 'POST'])
