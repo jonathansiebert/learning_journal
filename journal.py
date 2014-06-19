@@ -189,7 +189,7 @@ def do_login(username='', passwd=''):
         raise ValueError
     session['logged_in'] = True
 
-@app.route('/tweet_title', methods=['POST'])
+@app.route('/twit/<tweet_title>', methods=['POST'])
 def twitter_post(tweet_title="hi"):
     con_k = u'uEmrTJlrsXcQheimdjilVRgpi'
     con_s = u'xPPpr6kvMqMIOe3cyj0hE4Et8y08AehbFsAJW2qqXR7p7KKMHA'
