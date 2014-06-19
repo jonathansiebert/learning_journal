@@ -35,7 +35,7 @@ SELECT id, title, text, created FROM entries ORDER BY created DESC
 
 DB_ENTRY_UPDATE = """
 UPDATE ONLY entries AS en
-SET (title, text, created) = (%s, %s, %s)
+SET (title, text) = (%s, %s)
 WHERE en.id = %s
 """
 
@@ -106,7 +106,7 @@ def update_entry(title, text, entry_id):
     con = get_database_connection()
     cur = con.cursor()
     now = datetime.datetime.utcnow()
-    cur.execute(DB_ENTRY_UPDATE, [title, text, now, entry_id])
+    cur.execute(DB_ENTRY_UPDATE, [title, text, entry_id])
 
 
 def get_entry(entry_id=1):
