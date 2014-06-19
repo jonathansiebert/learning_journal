@@ -10,6 +10,7 @@ from flask import abort
 from flask import request
 from flask import url_for
 from flask import redirect
+from flask import jsonify
 from flask import session
 from passlib.hash import pbkdf2_sha256
 import datetime
