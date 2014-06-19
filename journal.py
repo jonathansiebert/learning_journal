@@ -165,7 +165,8 @@ def edit_entry(entry_id=None):
             abort(500)
         else:
             return redirect(url_for('show_entries'))
-    return render_template('edit.html', entry=entry)
+    return jsonify(request.form['title'], request.form['text'],
+                   int(entry_id))
 
 
 @app.route('/login', methods=['GET', 'POST'])

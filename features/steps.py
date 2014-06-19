@@ -1,48 +1,39 @@
 # -*- coding: utf-8 -*-
 
-from lettuce import *
+import lettuce
 import journal
 
 
-# based on an idea by Bruce Eckel
-def step_with_context(a_string, *args, **kwargs):
-    def wrap(func):
-        @step(a_string)
-        def wrapped_func(*args):
-            with journal.app.test_request_context("/"):
-                func(*args, **kwargs)
-                con = journal.get_database_connection()
-                con.rollback()
-        return wrapped_func
-    return wrap
-
-
-@step_with_context("I am not logged in")
+@lettuce.step("I am not logged in")
 def i_am_not_logged_in(step):
-    world.logged_in = False
-    journal.logout()
+    with journal.app.test_client() as client:
+        lettuce.world.client = client
 
 
-@step_with_context("I am logged in")
+@lettuce.step("I am logged in")
 def i_am_logged_in(step):
-    world.login_helper("admin", "admin")
+    with journal.app.test_client() as client:
+        with client.session_transaction() as sess:
+            sess['logged_in'] = True
+        lettuce.world.client = client
 
 
-@step_with_context("I visit the URI '(.*)'")
+@lettuce.step("I visit the URI '(.*)'")
 def i_visit_the_uri(step, a_string):
-    world.response = journal.app.test_client().get(a_string)
+    lettuce.world.response = lettuce.world.client.get(a_string)
 
 
-@step_with_context("the response should not contain '(.*)'")
+@lettuce.step("the response should not contain '(.*)'")
 def the_response_should_not_contain(step, a_string):
-    assert a_string not in world.response.data
+    assert a_string not in lettuce.world.response.data
 
 
-@step_with_context("I should be redirected")
+@lettuce.step("I should be redirected")
 def i_should_be_redirected(step):
-    assert world.response.status_code // 100 == 3  # 300 code
+    assert lettuce.world.response.status_code // 100 == 3  # 300 code
 
 
-@step_with_context("the response should contain '(.*)'")
+@lettuce.step("the response should contain '(.*)'")
 def the_response_should_contain(step, a_string):
-    assert a_string in world.response.data
+    print lettuce.world.response.data
+    assert a_string in lettuce.world.response.data

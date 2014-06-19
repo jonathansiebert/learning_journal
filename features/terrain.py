@@ -2,8 +2,7 @@
 
 from contextlib import closing
 import os
-from flask import session
-from lettuce import *
+import lettuce
 from journal import app
 from journal import connect_db
 from journal import get_database_connection
@@ -14,7 +13,7 @@ from journal import init_db
 TEST_DSN = 'dbname=test_learning_journal user=' + os.environ.get('USER')
 
 
-world.entry_data = {
+lettuce.world.entry_data = {
     u'title': u'Hello',
     u'text': u'''#This is a post
     :::python
@@ -22,7 +21,7 @@ world.entry_data = {
 }
 
 
-@before.all
+@lettuce.before.all
 def test_app():
     """configure our app for use in testing"""
     app.config['DATABASE'] = TEST_DSN
@@ -31,13 +30,13 @@ def test_app():
 
     with app.test_request_context('/'):
         app.test_client().post(
-            '/add', data=world.entry_data, follow_redirects=True)
+            '/add', data=lettuce.world.entry_data, follow_redirects=True)
         # manually commit transaction here to avoid rollback
         # due to handled Exception
         get_database_connection().commit()
 
 
-@after.all
+@lettuce.after.all
 def teardown(total):
     with app.test_request_context('/'):
         con = get_database_connection()
@@ -48,14 +47,3 @@ def teardown(total):
     with closing(connect_db()) as db:
         db.cursor().execute("DROP TABLE entries")
         db.commit()
-
-
-@world.absorb
-def login_helper(username, password):
-    login_data = {
-        'username': username, 'password': password
-    }
-    client = app.test_client()
-    return client.post(
-        '/login', data=login_data, follow_redirects=True
-    )
