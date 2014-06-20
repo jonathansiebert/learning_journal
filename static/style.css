@@ -1,10 +1,10 @@
 body{
     position: relative;
     color:#111;
-    padding:0;
-    margin:0 auto;
+    background-color: #f8fff0;
+    padding:0    margin: auto;
     min-height: 100%;
-    width:910px;}
+    width: 80%;}
 header{
     margin:0;
     padding:0 0.75em;
@@ -53,7 +53,8 @@ main aside .field{
 main aside .field input,
 main aside .field label,
 main aside .field textarea{
-    vertical-align:top}
+    vertical-align:top;
+    background-color: white;}
 main aside .field label{
     display:inline-block;
     width:15%;
@@ -62,16 +63,26 @@ main aside .field input,
 main aside .field textarea{
     width:83%}
 main aside .control_row{
-    position: relative;
-    right: -550px;
+    position: absolute;
+    right: 16%;
     margin-left:16%}
 main aside .control_row input{
     margin-left:16%}
 
-#edit_button{
-    position: relative;
+.edit{
+    position: absolute;
     float:right;
-    right:5%;
+    right:-5%;
+}
+
+div.which_article {
+    position: relative;
+    left: 16%;
+    top: 10%;
+}
+
+article {
+    background-color: white;
 }
 
 

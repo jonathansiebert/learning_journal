@@ -19,8 +19,8 @@ Feature: Editing entries
 
     Scenario: Edit entry (Logged in)
         Given I am logged in
-        When I visit the URI '/edit/1'
-        Then the response should contain 'value="#This is a post"'
+        When I visit the URI '/_edit'
+        Then the response should contain 'This is a post'
 
     Scenario: View entry with markdown
         When I visit the URI '/'

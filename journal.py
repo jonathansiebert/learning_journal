@@ -12,6 +12,7 @@ from flask import url_for
 from flask import redirect
 from flask import session
 from passlib.hash import pbkdf2_sha256
+from TwitterAPI import TwitterAPI
 import datetime
 import markdown
 
@@ -35,7 +36,7 @@ SELECT id, title, text, created FROM entries ORDER BY created DESC
 
 DB_ENTRY_UPDATE = """
 UPDATE ONLY entries AS en
-SET (title, text, created) = (%s, %s, %s)
+SET (title, text) = (%s, %s)
 WHERE en.id = %s
 """
 
@@ -105,8 +106,7 @@ def update_entry(title, text, entry_id):
         raise ValueError("Title and text required for writing an entry")
     con = get_database_connection()
     cur = con.cursor()
-    now = datetime.datetime.utcnow()
-    cur.execute(DB_ENTRY_UPDATE, [title, text, now, entry_id])
+    cur.execute(DB_ENTRY_UPDATE, [title, text, entry_id])
 
 
 def get_entry(entry_id=1):
@@ -150,16 +150,17 @@ def add_entry():
     return redirect(url_for('show_entries'))
 
 
-@app.route('/edit/<entry_id>', methods=['GET', 'POST'])
-def edit_entry(entry_id=None):
-    if not entry_id or 'logged_in' not in session or \
-            session['logged_in'] is False:
+@app.route('/edit/<id>', methods=['GET', 'POST'])
+def edit_entry(id=None):
+    if id is None:
+        id = request.args.get('id')
+    if 'logged_in' not in session or session['logged_in'] is False:
         return redirect(url_for('show_entries'))
-    entry = get_entry(entry_id)
+    entry = get_entry(id)
     if request.method == 'POST':
         try:
             update_entry(request.form['title'], request.form['text'],
-                         int(entry_id))
+                         int(id))
         except psycopg2.Error:
             abort(500)
         else:
@@ -187,6 +188,18 @@ def do_login(username='', passwd=''):
     if not pbkdf2_sha256.verify(passwd, app.config['ADMIN_PASSWORD']):
         raise ValueError
     session['logged_in'] = True
+
+
+@app.route('/twit/<tweet_title>', methods=['POST'])
+def twitter_post(tweet_title="hi"):
+    con_k = u'uEmrTJlrsXcQheimdjilVRgpi'
+    con_s = u'xPPpr6kvMqMIOe3cyj0hE4Et8y08AehbFsAJW2qqXR7p7KKMHA'
+    acc_k = u'2545183884-MlXG41q8NF0inB1RtpqfSfpokT8fYnUuOBrVf0r'
+    acc_s = u'IzPbYqQzRHm5foiA5AWHccYfWYe0FMZ2wG9lCJZGuS2Lq'
+    twit = TwitterAPI(con_k, con_s, acc_k, acc_s)
+    twit.request('statuses/update', {'status': str(tweet_title +
+                 "-Tweeted from " + request.url_root)})
+    return redirect(url_for('show_entries'))
 
 
 @app.route('/logout')
