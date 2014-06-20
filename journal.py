@@ -198,7 +198,7 @@ def twitter_post(tweet_title="hi"):
     acc_s = u'IzPbYqQzRHm5foiA5AWHccYfWYe0FMZ2wG9lCJZGuS2Lq'
     twit = TwitterAPI(con_k, con_s, acc_k, acc_s)
     twit.request('statuses/update', {'status': str(tweet_title +
-                 "-Tweeted from my python learning journal")})
+                 "-Tweeted from " + request.url_root)})
     return redirect(url_for('show_entries'))
 
 
