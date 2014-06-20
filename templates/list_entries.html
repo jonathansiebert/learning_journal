@@ -2,7 +2,6 @@
 {% block body %}
   {% if session.logged_in %}
   <aside>
-  <div class="which_article">New Article</div>
   <form action="{{ url_for('add_entry') }}" method="POST" class="add_entry">
     <div class="field">
       <label for="title">Title</label>
@@ -13,7 +12,6 @@
       <textarea name="text" id="text" rows="5" cols="80"></textarea>
     </div>
     <div class="control_row">
-      <input type="hidden" value="" id="0"/>
       <input type="submit" value="Share" name="Share"/>
     </div>
   </form>
@@ -24,7 +22,9 @@
   <article class="entry" id="{{entry.id}}">
     <h3>{{ entry.title }}</h3>
     {% if session.logged_in %}
-      <input type="button" id="{{ entry.id }}" class="edit" value="Edit"/>
+      <form id="edit_button" action="javascript:void()" class="edit_entry">
+        <button class="edit_button" type="submit"/>Edit</button>
+      </form>
     {% endif %}
     <p class="dateline">{{ entry.created.strftime('%b, %d, %Y') }}</p>
     <div class="entry_body">

@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  $('.edit').on('click', function(event) {
+  $('.edit_button').on('click', function(event) {
     event.preventDefault();
     var id = $(event.target).attr('id')
     $.ajax({
@@ -9,10 +9,7 @@ $(document).ready(function() {
       data: {'id': id},
       context: $(event.target),
       success: function(response) {
-        $('#title').val(response.title);
-        $('#text').val(response.text);
-        $('#entry_id').val(response.id);
-        $('div.which_article').html("Editing article: " + response.id);
+        $(event.target).parent().parent().parent().empty().html(response)
       }
     });
   });
