@@ -151,8 +151,10 @@ def add_entry():
     return redirect(url_for('show_entries'))
 
 
-@app.route('/_edit', methods=['GET', 'POST'])
-def edit_entry(entry_id=None):
+@app.route('/_edit/', methods=['GET', 'POST'])
+def edit_entry():
+    entry_id = request.args.get('id', 0, type=int)
+    print entry_id
     if not entry_id or 'logged_in' not in session or \
             session['logged_in'] is False:
         return redirect(url_for('show_entries'))

@@ -6,24 +6,8 @@
     <!--[if lt IE 9]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <!-- based on http://runnable.com/UiPhLHanceFYAAAP/how-to-perform-ajax-in-flask-for-python-->
-    <script type=text/javascript>
-      $(function() {
-        $('input[name="share"]').bind('click', function() {
-          $.getJSON('/_edit', {
-            id: $('input[name="id"]').val(),
-            title: $('input[name="title"]').val(),
-            text: $('textarea[name="text"]').val()
-          }, function(data) {
-            $('input[name="id"]').text(data.id);
-            $('input[name="title"]').text(data.title)
-            $('textarea[name="text"]').text(data.text)
-          });
-          return false;
-        });
-      });
-    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='edit.js') }}"></script>
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css">
   </head>
   <body>
