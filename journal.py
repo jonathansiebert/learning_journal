@@ -10,7 +10,6 @@ from flask import abort
 from flask import request
 from flask import url_for
 from flask import redirect
-from flask import jsonify
 from flask import session
 from passlib.hash import pbkdf2_sha256
 from TwitterAPI import TwitterAPI
@@ -107,7 +106,6 @@ def update_entry(title, text, entry_id):
         raise ValueError("Title and text required for writing an entry")
     con = get_database_connection()
     cur = con.cursor()
-    now = datetime.datetime.utcnow()
     cur.execute(DB_ENTRY_UPDATE, [title, text, entry_id])
 
 
@@ -191,6 +189,7 @@ def do_login(username='', passwd=''):
         raise ValueError
     session['logged_in'] = True
 
+
 @app.route('/twit/<tweet_title>', methods=['POST'])
 def twitter_post(tweet_title="hi"):
     con_k = u'uEmrTJlrsXcQheimdjilVRgpi'
@@ -198,8 +197,10 @@ def twitter_post(tweet_title="hi"):
     acc_k = u'2545183884-MlXG41q8NF0inB1RtpqfSfpokT8fYnUuOBrVf0r'
     acc_s = u'IzPbYqQzRHm5foiA5AWHccYfWYe0FMZ2wG9lCJZGuS2Lq'
     twit = TwitterAPI(con_k, con_s, acc_k, acc_s)
-    r = twit.request('statuses/update', {'status': str(tweet_title)})
+    twit.request('statuses/update', {'status': str(tweet_title +
+                 "-Tweeted from my python learning journal")})
     return redirect(url_for('show_entries'))
+
 
 @app.route('/logout')
 def logout():
