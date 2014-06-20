@@ -13,6 +13,7 @@ from flask import redirect
 from flask import jsonify
 from flask import session
 from passlib.hash import pbkdf2_sha256
+from TwitterAPI import TwitterAPI
 import datetime
 import markdown
 
@@ -190,6 +191,15 @@ def do_login(username='', passwd=''):
         raise ValueError
     session['logged_in'] = True
 
+@app.route('/twit/<tweet_title>', methods=['POST'])
+def twitter_post(tweet_title="hi"):
+    con_k = u'uEmrTJlrsXcQheimdjilVRgpi'
+    con_s = u'xPPpr6kvMqMIOe3cyj0hE4Et8y08AehbFsAJW2qqXR7p7KKMHA'
+    acc_k = u'2545183884-MlXG41q8NF0inB1RtpqfSfpokT8fYnUuOBrVf0r'
+    acc_s = u'IzPbYqQzRHm5foiA5AWHccYfWYe0FMZ2wG9lCJZGuS2Lq'
+    twit = TwitterAPI(con_k, con_s, acc_k, acc_s)
+    r = twit.request('statuses/update', {'status': str(tweet_title)})
+    return redirect(url_for('show_entries'))
 
 @app.route('/logout')
 def logout():
