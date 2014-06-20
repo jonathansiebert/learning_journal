@@ -1,15 +1,14 @@
 $(document).ready(function() {
-  $('.edit_button').on('click', function(event) {
+  $('.edit_entry').on('submit', function(event) {
     event.preventDefault();
     var id = $(event.target).attr('id')
-    $.ajax({
-      url: "/_edit/",
+    $.ajax(('/edit/'+id), {
       type: 'GET',
-      dataType: 'json',
       data: {'id': id},
       context: $(event.target),
       success: function(response) {
-        $(event.target).parent().parent().parent().empty().html(response)
+        var parent = $(this).parent();
+        parent.empty().html(response);
       }
     });
   });

@@ -22,8 +22,8 @@
   <article class="entry" id="{{entry.id}}">
     <h3>{{ entry.title }}</h3>
     {% if session.logged_in %}
-      <form id="edit_button" action="javascript:void()" class="edit_entry">
-        <button class="edit_button" type="submit"/>Edit</button>
+      <form  id="{{entry.id}}" action="{{ url_for('edit_entry', id=entry.id) }}" method="GET" class="edit_entry">
+        <input Value="Edit" name="submit" type="submit"/>
       </form>
     {% endif %}
     <p class="dateline">{{ entry.created.strftime('%b, %d, %Y') }}</p>
@@ -37,3 +37,6 @@
   </div>
   {% endfor %}
 {% endblock %}
+
+{{ url_for('viewproj', proj=project.project_name) }}">
+{{ url_for('viewproj', proj=xxx) }}
