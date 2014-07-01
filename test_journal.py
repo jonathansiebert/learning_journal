@@ -10,7 +10,8 @@ from journal import connect_db
 from journal import get_database_connection
 from journal import init_db
 
-TEST_DSN = 'dbname=test_learning_journal user=' + os.environ.get('USER')
+TEST_DSN = 'dbname=test_learning_journal user=' + \
+    os.environ.get('USER', 'postgres')
 
 
 def clear_db():
