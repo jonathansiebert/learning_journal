@@ -119,9 +119,12 @@ def test_add_entries(db):
         u'title': u'Hello',
         u'text': u'This is a post',
     }
-    actual = app.test_client().post(
-        '/add', data=entry_data, follow_redirects=True
-        ).data
+    actual = ''
+    with app.test_client() as c:
+        with c.session_transaction() as sess:
+            sess['logged_in'] = True
+        actual = c.post('/add', data=entry_data, follow_redirects=True).data
+    assert actual != ''
     assert 'No entries here so far' not in actual
     for expected in entry_data.values():
         assert expected in actual
@@ -132,11 +135,14 @@ def test_edit_entries(req_context):
         u'title': u'Hello2',
         u'text': u'This is a post2',
     }
-    actual = app.test_client().post(
-        '/edit/4', data=entry_data, follow_redirects=True
-        ).data
+    actual = ''
+    with app.test_client() as c:
+        with c.session_transaction() as sess:
+            sess['logged_in'] = True
+        actual = c.post(
+            '/edit/4?id=4', data=entry_data, follow_redirects=True).data
+    assert actual != ''
     assert 'No entries here so far' not in actual
-    print actual
     for expected in entry_data.values():
         assert expected in actual
 

@@ -34,5 +34,5 @@ def i_should_be_redirected(step):
 
 
 @lettuce.step("the response should contain '(.*)'")
-def the_response_should_contain(step, a_string):
+def the_response_should_contain(step, a_string):\
     assert a_string in lettuce.world.response.data

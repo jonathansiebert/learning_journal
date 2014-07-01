@@ -142,6 +142,8 @@ def show_entries():
 
 @app.route('/add', methods=['POST'])
 def add_entry():
+    if 'logged_in' not in session or session['logged_in'] is False:
+        return redirect(url_for('show_entries'))
     try:
         write_entry(request.form['title'], request.form['text'])
     except psycopg2.Error:

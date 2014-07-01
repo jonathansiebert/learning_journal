@@ -15,11 +15,11 @@ Feature: Editing entries
     Scenario: List view edit buttons (Logged in)
         Given I am logged in
         When I visit the URI '/'
-        Then the response should contain '<button type="submit"/>Edit'
+        Then the response should contain '<input Value="Edit"'
 
     Scenario: Edit entry (Logged in)
         Given I am logged in
-        When I visit the URI '/_edit'
+        When I visit the URI '/edit/1'
         Then the response should contain 'This is a post'
 
     Scenario: View entry with markdown
