@@ -40,6 +40,9 @@ SET (title, text) = (%s, %s)
 WHERE en.id = %s
 """
 
+DB_GET_ENTRY = """SELECT id, title, text, created FROM entries
+WHERE id = %s"""
+
 app = Flask(__name__)
 
 app.config['DATABASE'] = os.environ.get('DATABASE_URL',
@@ -110,13 +113,9 @@ def update_entry(title, text, entry_id):
 
 
 def get_entry(entry_id=1):
-    DB_GET_ENTRY = """
-SELECT id, title, text, created FROM entries
-WHERE id = {}
-    """.format((entry_id))
     con = get_database_connection()
     cur = con.cursor()
-    cur.execute(DB_GET_ENTRY)
+    cur.execute(DB_GET_ENTRY, entry_id)
     e = cur.fetchone()
     assert e
     return {'id': e[0], 'title': e[1].strip(),
